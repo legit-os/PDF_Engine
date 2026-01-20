@@ -10,8 +10,12 @@ st.title("Upload Images")
 st.session_state["pages"] = []
 
 
+st.warning("Warning: Upload All the images at once, Returning to this Page again will remove all the inserted images or other documents")
+
+
+
 uploaded_files = st.file_uploader(
-    "Upload one or more images",
+    "Upload one or more images (Right click on files or Hold them to select based on your device type)",
     type=["png", "jpg", "jpeg"],
     accept_multiple_files=True
 )

@@ -1,7 +1,7 @@
 import streamlit as st
 from PIL import Image
 import uuid
-from utils import image_to_single_page_pdf
+from utils import image_to_single_page_pdf,pdf_to_pages
 
 
 st.title("Upload Images")
@@ -10,7 +10,7 @@ st.title("Upload Images")
 st.session_state["pages"] = []
 
 
-st.warning("Warning: Upload All the images at once, Returning to this Page again will remove all the inserted images or other documents")
+st.warning("Warning: Upload All the images or pdf at once, Returning to this Page again will remove all the inserted images or other documents")
 
 
 
@@ -31,6 +31,30 @@ if uploaded_files:
         })
 
     st.success(f"Having {len(st.session_state["pages"])} image(s)")
+
+
+
+st.title("Upload PDFs")
+
+
+uploaded_pdfs = st.file_uploader(
+    "Upload one or more PDF files",
+    type=["pdf"],
+    accept_multiple_files=True
+)
+
+if uploaded_pdfs:
+    total_pages_added = 0
+
+    for pdf_file in uploaded_pdfs:
+        pdf_bytes = pdf_file.read()
+        pages = pdf_to_pages(pdf_bytes)
+
+        st.session_state["pages"].extend(pages)
+        total_pages_added += len(pages)
+
+    st.success(f"Added {total_pages_added} page(s) from PDFs")
+
 
 
 if st.session_state["pages"]:

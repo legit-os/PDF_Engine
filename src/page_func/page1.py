@@ -4,14 +4,14 @@ import uuid
 from utils import image_to_single_page_pdf,pdf_to_pages
 
 
-st.title("Upload Images")
 
 
 st.session_state["pages"] = []
 
 
-st.warning("Warning: Upload All the images or pdf at once, Returning to this Page again will remove all the inserted images or other documents")
+st.warning("Warning: :blue[Upload All the images or pdf at **ONCE**], Returning to this Page again will remove all the inserted images or other documents")
 
+st.title("Upload Images")
 
 
 uploaded_files = st.file_uploader(

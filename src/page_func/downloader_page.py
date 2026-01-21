@@ -2,6 +2,14 @@ from utils import merge_pdf_pages
 import streamlit as st
 
 
+
+if "pages" not in st.session_state:
+    st.error("Go to the Uploader page and Upload documents to create to pdf")
+    st.stop()
+elif len(st.session_state["pages"]) == 0:
+    st.error("No pdfs or images uploaded")
+    st.stop()
+
 st.header("Export")
 
 if st.button("📄 Merge Pages into PDF"):

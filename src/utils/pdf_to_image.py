@@ -31,3 +31,15 @@ def pdf_to_pages(pdf_bytes, dpi=150):
         })
 
     return pages
+
+from PIL import Image
+
+def pdf_page_to_image(
+    pdf_bytes: bytes,
+    dpi: int = 150
+) -> Image.Image:
+    
+    images = convert_from_bytes(pdf_bytes, dpi=dpi)
+
+    
+    return images[0].convert("RGB")

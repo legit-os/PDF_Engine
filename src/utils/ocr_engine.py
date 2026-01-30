@@ -30,26 +30,58 @@ def deepseek_ocr_ollama(
     return response["message"]["content"]
 
 
+from io import BytesIO
+import re
+
 from reportlab.platypus import (
     SimpleDocTemplate,
     Paragraph,
     Spacer,
     ListFlowable,
     ListItem,
+    Image,
 )
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
-from io import BytesIO
-import re
+
+import matplotlib.pyplot as plt
+
+
+def _latex_to_image(latex: str, fontsize=14) -> BytesIO:
+    """
+    Render LaTeX to an image using matplotlib and return BytesIO.
+    """
+    buf = BytesIO()
+    fig = plt.figure()
+    fig.patch.set_alpha(0)
+
+    # Remove $$ if present
+    latex = latex.strip()
+    if latex.startswith("$$") and latex.endswith("$$"):
+        latex = latex[2:-2]
+
+    plt.text(
+        0.5,
+        0.5,
+        f"${latex}$",
+        fontsize=fontsize,
+        ha="center",
+        va="center",
+    )
+    plt.axis("off")
+
+    fig.savefig(buf, format="png", dpi=300, bbox_inches="tight", pad_inches=0.1)
+    plt.close(fig)
+
+    buf.seek(0)
+    return buf
 
 
 def markdown_to_a4_pdf_page(markdown_text: str) -> bytes:
     """
-    Convert markdown text into a single A4 PDF page.
-
-    Returns:
-        pdf_bytes (bytes)
+    Convert markdown text into a single A4 PDF page
+    with Markdown + LaTeX rendering.
     """
 
     buffer = BytesIO()
@@ -65,47 +97,17 @@ def markdown_to_a4_pdf_page(markdown_text: str) -> bytes:
 
     styles = getSampleStyleSheet()
 
-    
-    styles.add(
-        ParagraphStyle(
-            name="H1",
-            fontSize=18,
-            leading=22,
-            spaceAfter=12,
-            spaceBefore=12,
-        )
-    )
-    styles.add(
-        ParagraphStyle(
-            name="H2",
-            fontSize=15,
-            leading=18,
-            spaceAfter=10,
-            spaceBefore=10,
-        )
-    )
-    styles.add(
-        ParagraphStyle(
-            name="H3",
-            fontSize=13,
-            leading=16,
-            spaceAfter=8,
-            spaceBefore=8,
-        )
-    )
-    styles.add(
-        ParagraphStyle(
-            name="Body",
-            fontSize=10.5,
-            leading=14,
-            spaceAfter=6,
-        )
-    )
+    styles.add(ParagraphStyle(name="H1", fontSize=18, leading=22, spaceAfter=12))
+    styles.add(ParagraphStyle(name="H2", fontSize=15, leading=18, spaceAfter=10))
+    styles.add(ParagraphStyle(name="H3", fontSize=13, leading=16, spaceAfter=8))
+    styles.add(ParagraphStyle(name="Body", fontSize=10.5, leading=14, spaceAfter=6))
 
     story = []
-
     lines = markdown_text.splitlines()
     bullet_buffer = []
+
+    block_latex_pattern = re.compile(r"^\$\$(.+?)\$\$$")
+    inline_latex_pattern = re.compile(r"\$(.+?)\$")
 
     def flush_bullets():
         nonlocal bullet_buffer
@@ -113,13 +115,9 @@ def markdown_to_a4_pdf_page(markdown_text: str) -> bytes:
             story.append(
                 ListFlowable(
                     [
-                        ListItem(
-                            Paragraph(item, styles["Body"]),
-                            bulletText="•",
-                        )
+                        ListItem(Paragraph(item, styles["Body"]), bulletText="•")
                         for item in bullet_buffer
                     ],
-                    start="bullet",
                     leftIndent=12,
                 )
             )
@@ -133,7 +131,16 @@ def markdown_to_a4_pdf_page(markdown_text: str) -> bytes:
             story.append(Spacer(1, 6))
             continue
 
-        
+        # ---------- BLOCK LATEX ----------
+        block_match = block_latex_pattern.match(line)
+        if block_match:
+            flush_bullets()
+            img_buf = _latex_to_image(block_match.group(1), fontsize=16)
+            story.append(Image(img_buf, width=120 * mm, height=30 * mm))
+            story.append(Spacer(1, 8))
+            continue
+
+        # ---------- HEADINGS ----------
         if line.startswith("### "):
             flush_bullets()
             story.append(Paragraph(line[4:], styles["H3"]))
@@ -144,23 +151,48 @@ def markdown_to_a4_pdf_page(markdown_text: str) -> bytes:
             flush_bullets()
             story.append(Paragraph(line[2:], styles["H1"]))
 
-        
+        # ---------- BULLETS ----------
         elif line.startswith("- ") or line.startswith("* "):
             bullet_buffer.append(line[2:])
 
-    
+        # ---------- BODY WITH INLINE LATEX ----------
         else:
             flush_bullets()
-            
-            safe_line = (
-                line.replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-            )
-            story.append(Paragraph(safe_line, styles["Body"]))
+
+            parts = []
+            last = 0
+
+            for m in inline_latex_pattern.finditer(line):
+                if m.start() > last:
+                    parts.append(
+                        Paragraph(
+                            line[last : m.start()]
+                            .replace("&", "&amp;")
+                            .replace("<", "&lt;")
+                            .replace(">", "&gt;"),
+                            styles["Body"],
+                        )
+                    )
+
+                img_buf = _latex_to_image(m.group(1), fontsize=12)
+                parts.append(Image(img_buf, width=40 * mm, height=12 * mm))
+                last = m.end()
+
+            if last < len(line):
+                parts.append(
+                    Paragraph(
+                        line[last:]
+                        .replace("&", "&amp;")
+                        .replace("<", "&lt;")
+                        .replace(">", "&gt;"),
+                        styles["Body"],
+                    )
+                )
+
+            for p in parts:
+                story.append(p)
 
     flush_bullets()
-
     doc.build(story)
 
     buffer.seek(0)

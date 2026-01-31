@@ -1,7 +1,9 @@
 from pypdf import PdfWriter
 from io import BytesIO
 
-def merge_pdf_pages(pages):
+from .pdfpage_Class import PDFPage
+
+def merge_pdf_pages(pages:list[PDFPage]):
     """
     pages: list of dicts with key 'pdf_bytes'
     returns: bytes (merged PDF)
@@ -9,7 +11,7 @@ def merge_pdf_pages(pages):
     merger = PdfWriter()
 
     for page in pages:
-        merger.append(BytesIO(page["pdf_bytes"]))
+        merger.append(BytesIO(page['pdf_bytes']))
 
     output = BytesIO()
     merger.write(output)

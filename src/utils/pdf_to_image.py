@@ -1,3 +1,4 @@
+from ast import List
 from pypdf import PdfReader, PdfWriter
 from pdf2image import convert_from_bytes
 from io import BytesIO
@@ -37,9 +38,28 @@ from PIL import Image
 def pdf_page_to_image(
     pdf_bytes: bytes,
     dpi: int = 150
-) -> Image.Image:
+) -> list[Image.Image]:
     
     images = convert_from_bytes(pdf_bytes, dpi=dpi)
 
     
-    return images[0].convert("RGB")
+    return images
+
+
+import io
+from pypdf import PdfReader, PdfWriter
+
+def get_pages_as_bytes(pdf_bytes):
+    
+    reader = PdfReader(io.BytesIO(pdf_bytes))
+    page_byte_list = []
+
+    for page in reader.pages:
+        writer = PdfWriter()
+        writer.add_page(page)
+        
+        with io.BytesIO() as output_stream:
+            writer.write(output_stream)
+            page_byte_list.append(output_stream.getvalue())
+            
+    return page_byte_list

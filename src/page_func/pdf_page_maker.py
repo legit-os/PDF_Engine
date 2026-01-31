@@ -1,9 +1,19 @@
+from pathlib import Path
 import streamlit as st
 import uuid
-from utils import markdown_to_a4_pdf_page
+from utils import markdown_to_a4_pdf_page,markdown_to_pdf_bytes_IMPROVED
+from utils.pdf_to_image import get_pages_as_bytes
 
-st.title("Markdown Editor → PDF Page")
+st.title("Markdown Editor → PDF Page",help="""
+         for images: 
+         ![Alt text description](image_url_or_path.jpg "Optional image title")
+         for links:
+         [Link text goes here](https://www.example.com)
+         """)
+st.link_button("Markdown/HTML Helper",url="https://www.markdownguide.org/basic-syntax/")
 
+if "markdown_history" not in st.session_state:
+    st.session_state["markdown_history"]
 
 if "pages" not in st.session_state:
     st.session_state["pages"] = []
@@ -13,7 +23,15 @@ col_editor, col_preview = st.columns(2)
 
 with col_editor:
     st.subheader("Write Markdown")
-
+    
+    
+    with st.popover("See History"):
+        st.subheader("all markdown history :material/arrow_downward:")
+        for his in st.session_state["markdown_history"]:
+            st.markdown("---")
+            st.code(his)
+            
+            
     markdown_text = st.text_area(
         "Markdown Input",
         height=500,
@@ -31,6 +49,7 @@ with col_preview:
     st.subheader("Live Preview")
 
     if markdown_text.strip():
+        st.session_state["markdown_history"].append(markdown_text)
         st.markdown(markdown_text, unsafe_allow_html=False)
     else:
         st.info("Markdown preview will appear here.")
@@ -42,8 +61,8 @@ col_create, col_clear = st.columns([1, 1])
 
 with col_create:
     if st.button("Create PDF Page from Markdown", disabled=(not markdown_text.strip())):
-        pdf_bytes = markdown_to_a4_pdf_page(markdown_text)
-
+        pdf_bytes = markdown_to_pdf_bytes_IMPROVED(markdown_text)
+        
         st.session_state["pages"].append({
             "id": str(uuid.uuid4()),
             "image": None,            
@@ -57,3 +76,30 @@ with col_create:
 with col_clear:
     if st.button("Clear Editor"):
         st.rerun()
+
+import io
+from PIL import Image
+import base64
+import os
+
+def streamlit_img_to_markdown(uploaded_file):
+    if uploaded_file is not None:
+        
+        file_bytes = uploaded_file.getvalue()
+        
+        mime_type = uploaded_file.type
+        
+        base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
+        
+        markdown_tag = f'![{uploaded_file.name}](data:{mime_type};base64,{base64_encoded})'
+        
+        return markdown_tag.encode('utf-8')
+
+
+with st.popover("Bytes utility for images"):
+    image_file = st.file_uploader("Upload image here",accept_multiple_files=False,type=["jpg","jpeg","png"])
+    bt = st.button("get bytes string")
+    if bt:
+        st.code(streamlit_img_to_markdown(image_file))
+    
+    

@@ -1,9 +1,9 @@
 from pathlib import Path
 import streamlit as st 
 
-Uploader_Page = st.Page(Path("src/page_func/page1.py"),title="Uploader")
+Uploader_Page = st.Page(Path("src/page_func/uploader_page.py"),title="Uploader")
 
-Reorder_Page = st.Page(Path("src/page_func/page2.py"),title="Editor")
+Reorder_Page = st.Page(Path("src/page_func/Editor_page.py"),title="Editor")
 
 # PDF_Entry_Page = st.Page(Path("src/page_func/pdf_to_img.py"),title="PDF Uploader")
 

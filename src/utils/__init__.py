@@ -11,3 +11,4 @@ from .pdfpage_Class import PDFPage
 #     image: str = None
 #     pdf_bytes: bytes 
 #     markdown_text: str = ""
+#     ocr_applied : bool = False

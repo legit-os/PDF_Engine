@@ -25,7 +25,7 @@ if uploaded_files:
 
         st.session_state["pages"].append(
             PDFPage(
-                page_id=uuid.uuid4(),
+                page_id=str(uuid.uuid4()),
                 image=img,
                 pdf_bytes=pdf_byte,
                 markdown_text=None,
@@ -61,7 +61,7 @@ if st.session_state["pages"]:
     st.subheader("Current Images")
     for i, page in enumerate(st.session_state["pages"]):
         st.image(
-            page.image,
+            page["image"],
             caption=f"Image {i + 1}",
             width="stretch"
         )

@@ -1,8 +1,11 @@
 from ast import List
+from os import read
 from pypdf import PdfReader, PdfWriter
 from pdf2image import convert_from_bytes
 from io import BytesIO
 import uuid
+
+from utils.pdfpage_Class import PDFPage
 
 
 def pdf_to_pages(pdf_bytes, dpi=150):
@@ -25,11 +28,19 @@ def pdf_to_pages(pdf_bytes, dpi=150):
         writer.write(buffer)
         buffer.seek(0)
 
-        pages.append({
-            "id": str(uuid.uuid4()),
-            "pdf_bytes": buffer.read(),
-            "image": img.convert("RGB")
-        })
+        # pages.append({
+        #     "id": str(uuid.uuid4()),
+        #     "pdf_bytes": buffer.read(),
+        #     "image": img.convert("RGB")
+        # })
+
+        pages.append(
+            PDFPage(
+                page_id=str(uuid.uuid4()),
+                pdf_bytes= buffer.read(),
+                image=img.convert("RGB")
+            )
+        )
 
     return pages
 

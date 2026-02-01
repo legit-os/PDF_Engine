@@ -1,3 +1,4 @@
+from uuid import uuid4
 import streamlit as st
 from utils import (
     deepseek_ocr_ollama,
@@ -7,6 +8,7 @@ from utils import (
 )
 
 st.title("OCR Review & Apply")
+st.info("If ocr text generated is very large and doesn't fit in one page, multiple pages are created pointing to the same image as the original page ")
 
 if "pages" not in st.session_state or not st.session_state["pages"]:
     st.warning("No pages available.")
@@ -72,10 +74,11 @@ for idx, page in enumerate(pages):
 
                     new_pages = [
                         PDFPage(
-                            page_id=page.page_id,
-                            image=None,
+                            page_id=uuid4(),
+                            image=page.image,
                             pdf_bytes=pdf_bytes,
                             markdown_text=page.markdown_text,
+                            ocr_applied=True
                         )
                         for pdf_bytes in pdf_pages
                     ]

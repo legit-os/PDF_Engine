@@ -1,8 +1,10 @@
+import base64
 from pathlib import Path
 import streamlit as st
 import uuid
 from utils import markdown_to_a4_pdf_page,markdown_to_pdf_bytes_IMPROVED
-from utils.pdf_to_image import get_pages_as_bytes
+from utils.pdf_to_image import get_pages_as_bytes, pdf_to_pages
+from utils.pdfpage_Class import PDFPage
 
 st.title("Markdown Editor → PDF Page",help="""
          for images: 
@@ -13,7 +15,7 @@ st.title("Markdown Editor → PDF Page",help="""
 st.link_button("Markdown/HTML Helper",url="https://www.markdownguide.org/basic-syntax/")
 
 if "markdown_history" not in st.session_state:
-    st.session_state["markdown_history"]
+    st.session_state["markdown_history"] = []
 
 if "pages" not in st.session_state:
     st.session_state["pages"] = []
@@ -62,25 +64,26 @@ col_create, col_clear = st.columns([1, 1])
 with col_create:
     if st.button("Create PDF Page from Markdown", disabled=(not markdown_text.strip())):
         pdf_bytes = markdown_to_pdf_bytes_IMPROVED(markdown_text)
-        
-        st.session_state["pages"].append({
-            "id": str(uuid.uuid4()),
-            "image": None,            
-            "pdf_bytes": pdf_bytes,
-            "ocr_text":markdown_text,
-            "ocr_applied":True
-        })
+        pages_bytes = get_pages_as_bytes(pdf_bytes)
+        if len(pages_bytes) > 1:
+            st.error("Overflow Error, This markdown is too large to fit in one page. Try writing smaller markdown so that it fits in a single pdf A4 page, save it and write the rest of the markdown in another page.")
+        else:
+            st.session_state["pages"].append(
+                PDFPage({
+                "page_id": str(uuid.uuid4()),
+                "image": None,            
+                "pdf_bytes": pdf_bytes,
+                "markdown_text":markdown_text,
+                "ocr_applied":True
+            }))
 
-        st.success("PDF page created and added to document.")
+            st.success("PDF page created and added to document.")
 
 with col_clear:
     if st.button("Clear Editor"):
         st.rerun()
 
-import io
-from PIL import Image
-import base64
-import os
+
 
 def streamlit_img_to_markdown(uploaded_file):
     if uploaded_file is not None:

@@ -1,25 +1,29 @@
 import streamlit as st
 from PIL import Image
 import uuid
-from utils import image_to_single_page_pdf, pdf_to_pages, PDFPage
-from utils import get_pdf_uploader_key,get_image_uploader_key,check_up_keys,reset_keys
+from utils import image_to_single_page_pdf, pdf_to_pages, PDFPage,get_pdf_from_pptx_managed
+from utils import get_uploader_key,check_up_keys,reset_keys
 
 # -----------------------------------------------------------------------
 has_pdf_up, pdf_up_key = check_up_keys("pdf")
-has_image_up, image_up_key = check_up_keys("img")
+has_image_up, image_up_key = check_up_keys("image")
+has_ppt_up, ppt_up_key = check_up_keys("ppt")
 
 if not has_pdf_up:
-    pdf_up_key = get_pdf_uploader_key()
+    pdf_up_key = get_uploader_key("pdf")
 
 if not has_image_up:
-    image_up_key = get_image_uploader_key()
+    image_up_key = get_uploader_key("image")
+
+if not has_ppt_up:
+    ppt_up_key = get_uploader_key("ppt")
 
 # ---------------------------------------------------------------------
 
 if "pages" not in st.session_state:
     st.session_state["pages"] = []
 # ----------------------------------------------
-uploader_selected = st.radio("Select what type of files to upload",["Image","PDF"],horizontal=True)
+uploader_selected = st.radio("Select what type of files to upload",["Image","PDF","PPTX"],horizontal=True)
 
 # ----------------------------------------------------------------------------------------
 if uploader_selected == "Image":
@@ -27,7 +31,7 @@ if uploader_selected == "Image":
 
 
     uploaded_files = st.file_uploader(
-        "Upload one or more images (Right click on files and open or Drag them here )",
+        "Upload one (Right click on files and open or Drag them here )",
         type=["png", "jpg", "jpeg"],
         accept_multiple_files=False,
         key=image_up_key
@@ -49,8 +53,7 @@ if uploader_selected == "Image":
 
         reset_keys()
         st.rerun()
-        # image_up_key = get_image_uploader_key()
-        # pdf_up_key = get_pdf_uploader_key()
+        
             
 # --------------------------------------------------------------------------
 if uploader_selected == "PDF":
@@ -59,7 +62,7 @@ if uploader_selected == "PDF":
 
 
     uploaded_pdfs = st.file_uploader(
-        "Upload one or more PDF files",
+        "Upload PDF",
         type=["pdf"],
         accept_multiple_files=False,
         key=pdf_up_key
@@ -67,15 +70,35 @@ if uploader_selected == "PDF":
 
     if uploaded_pdfs:
 
-            pdf_bytes = uploaded_pdfs.read()
-            pages = pdf_to_pages(pdf_bytes)
+        pdf_bytes = uploaded_pdfs.read()
+        pages = pdf_to_pages(pdf_bytes)
 
-            st.session_state["pages"].extend(pages)
+        st.session_state["pages"].extend(pages)
 
-            reset_keys()
-            st.rerun()
-            # image_up_key = get_image_uploader_key()
-            # pdf_up_key = get_pdf_uploader_key()
+        reset_keys()
+        st.rerun()
+            
+            
+if uploader_selected == "PPTX":
+    
+    st.title("Upload PPT (.pptx files)")
+
+
+    uploaded_pptx = st.file_uploader(
+        "Upload one or more PDF files",
+        type=["pptx"],
+        accept_multiple_files=False,
+        key=ppt_up_key
+    )
+
+    if uploaded_pptx:
+        pptx_bytes = uploaded_pptx.read()
+        pages = get_pdf_from_pptx_managed(pptx_bytes)
+        st.session_state["pages"].extend(pages)
+            
+        reset_keys()
+        st.rerun()
+            
 
 st.success(f"Having {len(st.session_state['pages'])} pdf pages")
 

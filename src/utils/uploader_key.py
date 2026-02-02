@@ -3,33 +3,29 @@ import uuid
 import streamlit as st
 
 
-def get_pdf_uploader_key():
-    return f"pdf_uploader_{str(uuid.uuid4())}"
+def get_uploader_key(key:Literal["image","pdf","ppt"]):
+    return f"{key}_uploader_{str(uuid.uuid4())}"
 
-def get_image_uploader_key():
-    return f"image_uploader_{str(uuid.uuid4())}"
 
-def check_up_keys(key:Literal["img","pdf"]):
+def check_up_keys(search_key:Literal["image","pdf","ppt"]):
     session_keys = st.session_state.keys()
-    if key == "img":
-        for key in session_keys:
-            if key.startswith("image_uploader_"):
-                return True,key
-        
-        return False,None
     
-    elif key == "pdf":
-        for key in session_keys:
-            if key.startswith("pdf_uploader_"):
-                return True,key
-            
-        return False,None
+    for key in session_keys:
+        if key.startswith(f"{search_key}_uploader_"):
+            return True,key
+    
+    return False,None
+    
             
 def reset_keys():
     has_pdf , pdf_key = check_up_keys("pdf")
-    has_img , image_key = check_up_keys("img")
+    has_img , image_key = check_up_keys("image")
+    has_ppt , ppt_key = check_up_keys("ppt")
     
     if has_pdf:
         st.session_state.pop(pdf_key)
     if has_img:
         st.session_state.pop(image_key)
+    if has_ppt:
+        st.session_state.pop(ppt_key)
+    

@@ -1,10 +1,12 @@
+from typing import Literal
 import ollama
 from PIL import Image
 from io import BytesIO
 
 def deepseek_ocr_ollama(
     image: Image.Image,
-    instruction: str = "Free OCR."
+    instruction: Literal["Free OCR.","<|grounding|>Convert the document to markdown.",
+                         "Parse the figure."] = "Free OCR."
 ) -> str:
 
     prompt = f"<image>\n{instruction}"

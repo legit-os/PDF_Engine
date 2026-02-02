@@ -58,16 +58,21 @@ for idx, page in enumerate(pages):
 
         with col_run:
             if st.button(
-                "Run OCR",
+                "Do OCR",
                 key=f"run_{page['page_id']}",
             ):
-                with st.spinner("Running DeepSeek-OCR..."):
-                    page["markdown_text"] = deepseek_ocr_ollama(
-                        page["image"],
-                        instruction="Free OCR.",
-                    )
-                st.success("OCR completed")
-                st.rerun()
+                inst = st.selectbox("What type of ocr you want to do?",["Free OCR.",
+                                                                "<|grounding|>Convert the document to markdown.",
+                                                                "Parse the figure."])
+                if st.button("Run"):
+                    
+                    with st.spinner("Running DeepSeek-OCR..."):
+                        page["markdown_text"] = deepseek_ocr_ollama(
+                            page["image"],
+                            instruction=inst,
+                        )
+                    st.success("OCR completed")
+                    st.rerun()
 
         with col_apply:
             if has_markdown:

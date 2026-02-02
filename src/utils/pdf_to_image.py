@@ -9,11 +9,6 @@ from utils.pdfpage_Class import PDFPage
 
 
 def pdf_to_pages(pdf_bytes, dpi=150):
-    """
-    Takes full PDF bytes
-    Returns list of page dicts:
-    [{id, pdf_bytes, image}]
-    """
 
     reader = PdfReader(BytesIO(pdf_bytes))
     images = convert_from_bytes(pdf_bytes, dpi=dpi)
@@ -38,7 +33,9 @@ def pdf_to_pages(pdf_bytes, dpi=150):
             PDFPage(
                 page_id=str(uuid.uuid4()),
                 pdf_bytes= buffer.read(),
-                image=img.convert("RGB")
+                image=img.convert("RGB"),
+                markdown_text=None,
+                ocr_applied=False
             )
         )
 

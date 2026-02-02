@@ -5,6 +5,9 @@ import uuid
 from utils import markdown_to_a4_pdf_page,markdown_to_pdf_bytes_IMPROVED
 from utils.pdf_to_image import get_pages_as_bytes, pdf_to_pages
 from utils.pdfpage_Class import PDFPage
+from utils import reset_keys
+
+reset_keys()
 
 st.title("Markdown Editor → PDF Page",help="""
          for images: 

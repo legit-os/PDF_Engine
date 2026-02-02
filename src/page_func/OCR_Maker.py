@@ -6,6 +6,9 @@ from utils import (
     get_pages_as_bytes,
     PDFPage,
 )
+from utils import reset_keys
+
+reset_keys()
 
 st.title("OCR Review & Apply")
 st.info("If ocr text generated is very large and doesn't fit in one page, multiple pages are created pointing to the same image as the original page ")
@@ -22,8 +25,8 @@ for idx, page in enumerate(pages):
     st.markdown("---")
     st.subheader(f"Page {idx + 1}")
 
-    has_image = page.image is not None
-    has_markdown = page.markdown_text is not None
+    has_image = page["image"] is not None
+    has_markdown = page["markdown_text"] is not None
 
     if not has_image and not has_markdown:
         st.error("Invalid page state: both image and markdown are missing.")
@@ -34,9 +37,9 @@ for idx, page in enumerate(pages):
     with col_left:
         st.markdown("### Original")
         if has_image:
-            st.image(page.image)
+            st.image(page["image"])
         else:
-            st.info("This page has no image. OCR cannot be applied.")
+            st.info("This page has no image (probably because this is already written with markdown). OCR cannot be applied.")
             continue
 
     with col_right:
@@ -45,7 +48,7 @@ for idx, page in enumerate(pages):
         if has_markdown:
             st.text_area(
                 "OCR Preview",
-                page.markdown_text,
+                page["markdown_text"],
                 height=300,
             )
         else:
@@ -56,11 +59,11 @@ for idx, page in enumerate(pages):
         with col_run:
             if st.button(
                 "Run OCR",
-                key=f"run_{page.page_id}",
+                key=f"run_{page['page_id']}",
             ):
                 with st.spinner("Running DeepSeek-OCR..."):
-                    page.markdown_text = deepseek_ocr_ollama(
-                        page.image,
+                    page["markdown_text"] = deepseek_ocr_ollama(
+                        page["image"],
                         instruction="Free OCR.",
                     )
                 st.success("OCR completed")
@@ -68,16 +71,16 @@ for idx, page in enumerate(pages):
 
         with col_apply:
             if has_markdown:
-                if st.button(":green[Apply OCR]", key=f"apply_{page.page_id}"):
-                    merged_pdf = markdown_to_pdf_bytes_IMPROVED(page.markdown_text)
+                if st.button(":green[Apply OCR]", key=f"apply_{page['page_id']}"):
+                    merged_pdf = markdown_to_pdf_bytes_IMPROVED(page["markdown_text"])
                     pdf_pages = get_pages_as_bytes(merged_pdf)
 
                     new_pages = [
                         PDFPage(
-                            page_id=uuid4(),
-                            image=page.image,
+                            page_id=str(uuid4()),
+                            image=page["image"],
                             pdf_bytes=pdf_bytes,
-                            markdown_text=page.markdown_text,
+                            markdown_text=page["markdown_text"],
                             ocr_applied=True
                         )
                         for pdf_bytes in pdf_pages
@@ -92,8 +95,8 @@ for idx, page in enumerate(pages):
 
         with col_clear:
             if has_markdown:
-                if st.button("Clear OCR", key=f"clear_{page.page_id}"):
-                    page.markdown_text = None
+                if st.button("Clear OCR", key=f"clear_{page['page_id']}"):
+                    page["markdown_text"] = None
                     st.info("OCR cleared")
                     st.rerun()
 

@@ -7,6 +7,9 @@ from utils import (
     markdown_to_pdf_bytes_IMPROVED,
     PDFPage,
 )
+from utils import reset_keys
+
+reset_keys()
 
 st.set_page_config(layout="wide")
 

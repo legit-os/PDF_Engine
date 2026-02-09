@@ -4,6 +4,7 @@ import uuid
 from utils import image_to_single_page_pdf, pdf_to_pages, PDFPage,get_pdf_from_pptx_managed
 from utils import get_uploader_key,check_up_keys,reset_keys
 
+st.set_page_config(layout="wide")
 # -----------------------------------------------------------------------
 has_pdf_up, pdf_up_key = check_up_keys("pdf")
 has_image_up, image_up_key = check_up_keys("image")

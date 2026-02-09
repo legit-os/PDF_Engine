@@ -2,13 +2,19 @@ from uuid import uuid4
 import streamlit as st
 from utils import (
     deepseek_ocr_ollama,
+    glm_ocr_ollama,
     markdown_to_pdf_bytes_IMPROVED,
     get_pages_as_bytes,
     PDFPage,
 )
 from utils import reset_keys
 
+
+
 reset_keys()
+
+deepseek_inst = ["Free OCR.","<|grounding|>Convert the document to markdown.","Parse the figure."]
+glm_inst = ["Text Recognition:","Table Recognition:","Formula Recognition:"]
 
 st.title("OCR Review & Apply")
 st.info("If ocr text generated is very large and doesn't fit in one page, multiple pages are created pointing to the same image as the original page ")
@@ -57,22 +63,48 @@ for idx, page in enumerate(pages):
         col_run, col_apply, col_clear = st.columns(3)
 
         with col_run:
+
+            model = st.radio(
+                "Select OCR model",
+                ["deepseek-ocr", "glm-ocr"],
+                index=1,
+                key=f"ocr_model_{page['page_id']}",
+            )
+
+            if model == "glm-ocr":
+                inst = st.selectbox(
+                    "What type of OCR you want to do?",
+                    glm_inst,
+                    key=f"{model}_instructions_{page['page_id']}",
+                )
+            else:
+                inst = st.selectbox(
+                    "What type of OCR you want to do?",
+                    deepseek_inst,
+                    key=f"{model}_instructions_{page['page_id']}",
+                )
+
+
             if st.button(
-                "Do OCR",
-                key=f"run_{page['page_id']}",
+                "Run OCR",
+                key=f"run_ocr_{page['page_id']}",
             ):
-                inst = st.selectbox("What type of ocr you want to do?",["Free OCR.",
-                                                                "<|grounding|>Convert the document to markdown.",
-                                                                "Parse the figure."])
-                if st.button("Run"):
-                    
+                if model == "glm-ocr":
+                    with st.spinner("Running GLM-OCR..."):
+                        page["markdown_text"] = glm_ocr_ollama(
+                            page["image"],
+                            instruction=inst,
+                        )
+                else:
                     with st.spinner("Running DeepSeek-OCR..."):
                         page["markdown_text"] = deepseek_ocr_ollama(
                             page["image"],
                             instruction=inst,
                         )
-                    st.success("OCR completed")
-                    st.rerun()
+
+                st.success("OCR completed")
+                st.rerun()
+
 
         with col_apply:
             if has_markdown:

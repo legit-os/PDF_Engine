@@ -1,21 +1,68 @@
+import json
 from pathlib import Path
-import streamlit as st 
+
+import numpy as np
+from paddleocr import PaddleOCR  
+from PIL import Image
+
+def extract_boxes_with_text(ocr_dict: dict):
+    boxes = ocr_dict.get("rec_boxes", [])
+    texts = ocr_dict.get("rec_texts", [])
+
+    results = []
+
+    for box, text in zip(boxes, texts):
+        if not text:
+            continue
+
+        results.append({
+            "box": box.tolist(),
+            "text": text
+        })
+
+    return results
+
+ocr = PaddleOCR(
+    text_detection_model_name="PP-OCRv5_server_det",
+    text_recognition_model_name="PP-OCRv5_server_rec",
+    use_doc_orientation_classify=False, 
+    use_doc_unwarping=False, 
+    use_textline_orientation=False, 
+)
 
 
+input_path = Path("io/input_path")
 
-Uploader_Page = st.Page(Path("src/page_func/uploader_page.py"),title="Uploader")
+output_path = Path("io/output_path")
+if not output_path.exists():
+    output_path.mkdir()
 
-Reorder_Page = st.Page(Path("src/page_func/Editor_page.py"),title="Editor")
+images:list[tuple[Path,np.ndarray]] = []
+outputs = []
 
-# PDF_Entry_Page = st.Page(Path("src/page_func/pdf_to_img.py"),title="PDF Uploader")
+for i in input_path.walk():
+    path,folders,files = i
+    
+    if len(files) == 0:
+        continue
+    
+    else:
+        for file in files:
+            img_path = path / file
+            img = Image.open(img_path)
+            img_array = np.array(img)
+            images.append((img_path,img_array))
+        break
 
-OCR_page = st.Page(Path("src/page_func/OCR_Maker.py"),title="OCR Engine")
+results = ocr.predict([i[1] for i in images])
 
-Compiler_page = st.Page(Path("src/page_func/downloader_page.py"),title="PDF Downloader")
+n = len(results)
 
-Markdown_to_PDF_maker_page = st.Page(Path("src/page_func/pdf_page_maker.py"),title="PDF Writer")
-
-
-nav = st.navigation([Uploader_Page,Reorder_Page,OCR_page,Markdown_to_PDF_maker_page,Compiler_page])
-
-nav.run()
+for i in range(n):
+    output_file_name = images[i][0].stem
+    
+    output_file_path = output_path / f"{output_file_name}.json"
+    
+    with open(output_file_path, "w") as f:
+        json.dump(extract_boxes_with_text(results[i]),f,indent=4)
+    

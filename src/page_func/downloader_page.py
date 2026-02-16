@@ -14,6 +14,7 @@ elif len(st.session_state["pages"]) == 0:
 
 st.header("Export")
 
+
 if st.button("📄 Merge Pages into PDF"):
     merged_pdf = merge_pdf_pages(st.session_state["pages"])
     st.session_state["merged_pdf"] = merged_pdf

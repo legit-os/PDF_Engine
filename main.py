@@ -15,7 +15,14 @@ Compiler_page = st.Page(Path("src/page_func/downloader_page.py"),title="PDF Down
 
 Markdown_to_PDF_maker_page = st.Page(Path("src/page_func/pdf_page_maker.py"),title="PDF Writer")
 
+Paddle_OCR_page = st.Page(Path("src/page_func/Paddle_OCR.py"),title="Paddle_OCR")
 
-nav = st.navigation([Uploader_Page,Reorder_Page,OCR_page,Markdown_to_PDF_maker_page,Compiler_page])
+
+nav = st.navigation([Uploader_Page,
+                     Reorder_Page,
+                     OCR_page,
+                     Markdown_to_PDF_maker_page,
+                     Paddle_OCR_page,
+                     Compiler_page])
 
 nav.run()

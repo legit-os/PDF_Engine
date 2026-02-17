@@ -223,7 +223,7 @@ def apply_paddle_docker_ocr(pages: list):
                 "-v", f"{input_dir}:/app/io/input_path",
                 "-v", f"{output_dir}:/app/io/output_path",
                 "--name", "paddleocr-docker",
-                "paddleocr-docker",
+                "legitos/paddleocr-docker:v1",
             ],
             check=True
         )

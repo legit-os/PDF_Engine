@@ -6,14 +6,18 @@
 3. Use models like PaddleOCR, GLM-OCR and Deepseek-OCR with ollama to convert images or handwritten PDFs to Searchable PDFs.
 4. Download the PDF file (and optionally compress it to whatever size it is possible to compress).
 
-## Requirements: Ensure [UV](https://github.com/astral-sh/uv) is installed on your PC
+## Requirements: 
+1. Ensure [UV](https://github.com/astral-sh/uv) is installed on your PC
+2. Ensure you have docker engine since it is required by PaddleOCR 
 
-1. UV tool install method:
+## How to Use
+
+3. UV tool install method: (recommended)
    ```bash
    uv tool install git+https://github.com/legit-os/PDF_Engine.git
    ```
 
-2. Manually:
+4. Manually: (it may have problems)
    ### First Clone the repo:
 
     ```bash

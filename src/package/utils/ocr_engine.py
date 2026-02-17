@@ -207,7 +207,7 @@ def apply_paddle_docker_ocr(pages: list):
     
     time_estimate = len(eligible_pages)*20 + len(eligible_pages)*5
     
-    streamlit.info(f"Processing {len(eligible_pages)}, Estimated Time=> {time_estimate//3600} hours , {time_estimate//60} minutes , {time_estimate} seconds")
+    streamlit.info(f"Processing {len(eligible_pages)}, Estimated Time=> {time_estimate//3600} hours , {time_estimate//60 - (time_estimate//3600)*60} minutes")
     
     streamlit.text("Setting docker...")
     

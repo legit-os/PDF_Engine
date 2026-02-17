@@ -19,7 +19,7 @@
 
 3. UV tool install method: (recommended)
    ```bash
-   uv tool install git+https://github.com/legit-os/PDF_Engine.git
+   uv tool install git+https://github.com/legit-os/PDF_Engine.git -U
    ```
 
 4. Manually: (it may have problems)

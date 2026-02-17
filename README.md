@@ -8,7 +8,12 @@
 
 ## Requirements: 
 1. Ensure [UV](https://github.com/astral-sh/uv) is installed on your PC
-2. Ensure you have docker engine since it is required by PaddleOCR 
+2. Ensure you have docker engine since it is required by PaddleOCR
+3. Poppler
+   ```bash
+   sudo apt-get update
+   sudo apt-get install poppler-utils
+   ```
 
 ## How to Use
 

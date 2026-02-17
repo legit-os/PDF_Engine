@@ -5,7 +5,7 @@ from pdf2image import convert_from_bytes
 from io import BytesIO
 import uuid
 
-from utils.pdfpage_Class import PDFPage
+from package.utils.pdfpage_Class import PDFPage
 
 
 def pdf_to_pages(pdf_bytes, dpi=150):

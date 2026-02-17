@@ -204,7 +204,13 @@ def apply_paddle_docker_ocr(pages: list):
 
     if not eligible_pages:
         return
+    
+    time_estimate = len(eligible_pages)*20 + len(eligible_pages)*5
+    
+    streamlit.info(f"Processing {len(eligible_pages)}, Estimated Time=> {time_estimate//3600} hours , {time_estimate//60} minutes , {time_estimate} seconds")
+    
     streamlit.text("Setting docker...")
+    
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
         input_dir = tmpdir / "input_path"
@@ -225,7 +231,8 @@ def apply_paddle_docker_ocr(pages: list):
                 "--name", "paddleocr-docker",
                 "legitos/paddleocr-docker:v1",
             ],
-            check=True
+            check=True,
+            timeout=time_estimate
         )
         streamlit.text("OCR done, Creating pdf pages...")
         for page in eligible_pages:

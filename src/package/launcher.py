@@ -7,7 +7,7 @@ def main():
     main_file = project_root / "main.py"
 
     subprocess.run(
-        ["streamlit", "run", str(main_file)],
+        [sys.executable, "-m", "streamlit", "run", str(main_file)],
         check=True,
     )
 

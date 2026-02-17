@@ -22,7 +22,7 @@ st.info(":green[If you want to make your pdf selectable, use the PaddleOCR inste
 
 
 if "pages" not in st.session_state or not st.session_state["pages"]:
-    st.warning("No pages available.")
+    st.error("No pages available.")
     st.stop()
 
 pages: list[PDFPage] = st.session_state["pages"]

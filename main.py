@@ -1,7 +1,7 @@
 from pathlib import Path
 import streamlit as st 
 
-
+st.set_page_config(layout="wide")
 
 Uploader_Page = st.Page(Path("src/page_func/uploader_page.py"),title="Uploader")
 

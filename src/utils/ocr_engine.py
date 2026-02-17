@@ -1,7 +1,11 @@
 from typing import Literal
+from httpx import stream
+from matplotlib.ticker import StrMethodFormatter
 import ollama
 from PIL import Image
 from io import BytesIO
+
+import streamlit
 
 def deepseek_ocr_ollama(
     image: Image.Image,
@@ -192,6 +196,7 @@ from io import BytesIO
 
 
 def apply_paddle_docker_ocr(pages: list):
+    streamlit.text("Reading pages...")
     eligible_pages = [
         page for page in pages
         if page["image"] is not None and page["markdown_text"] is None
@@ -199,7 +204,7 @@ def apply_paddle_docker_ocr(pages: list):
 
     if not eligible_pages:
         return
-
+    streamlit.text("Setting docker...")
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
         input_dir = tmpdir / "input_path"
@@ -211,7 +216,7 @@ def apply_paddle_docker_ocr(pages: list):
         for page in eligible_pages:
             img_path = input_dir / f"{page['page_id']}.png"
             page["image"].save(img_path)
-
+        streamlit.text("Running Docker...")
         subprocess.run(
             [
                 "docker", "run", "--rm",
@@ -222,7 +227,7 @@ def apply_paddle_docker_ocr(pages: list):
             ],
             check=True
         )
-
+        streamlit.text("OCR done, Creating pdf pages...")
         for page in eligible_pages:
             json_path = output_dir / f"{page['page_id']}.json"
             if not json_path.exists():
@@ -270,3 +275,4 @@ def apply_paddle_docker_ocr(pages: list):
             "docker","rm","paddleocr-docker"
         ]
     )
+    streamlit.text("**Done**")

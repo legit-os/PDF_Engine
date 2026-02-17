@@ -37,7 +37,6 @@ COPY main.py ./
 
 ENV PATH="/app/.venv/bin:$PATH"
 
-
 CMD ["python", "main.py"]
 
 

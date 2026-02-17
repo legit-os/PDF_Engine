@@ -1,13 +1,13 @@
 import PIL.Image
 import streamlit as st
-from utils import (
+from package.utils import (
     image_to_single_page_pdf,
     compress_image_for_pdf,
     pdf_page_to_image,
     markdown_to_pdf_bytes_IMPROVED,
     PDFPage,
 )
-from utils import reset_keys
+from package.utils import reset_keys
 
 reset_keys()
 

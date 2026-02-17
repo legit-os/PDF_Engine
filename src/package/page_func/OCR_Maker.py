@@ -1,13 +1,13 @@
 from uuid import uuid4
 import streamlit as st
-from utils import (
+from package.utils import (
     deepseek_ocr_ollama,
     glm_ocr_ollama,
     markdown_to_pdf_bytes_IMPROVED,
     get_pages_as_bytes,
     PDFPage,
 )
-from utils import reset_keys
+from package.utils import reset_keys
 
 
 

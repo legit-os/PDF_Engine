@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import apply_paddle_docker_ocr
+from package.utils import apply_paddle_docker_ocr
 
 st.title("Apply Paddle OCR to All Pages")
 

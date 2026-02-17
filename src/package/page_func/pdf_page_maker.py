@@ -2,10 +2,10 @@ import base64
 from pathlib import Path
 import streamlit as st
 import uuid
-from utils import markdown_to_a4_pdf_page,markdown_to_pdf_bytes_IMPROVED
-from utils.pdf_to_image import get_pages_as_bytes, pdf_to_pages
-from utils.pdfpage_Class import PDFPage
-from utils import reset_keys
+from package.utils import markdown_to_a4_pdf_page,markdown_to_pdf_bytes_IMPROVED
+from package.utils.pdf_to_image import get_pages_as_bytes, pdf_to_pages
+from package.utils.pdfpage_Class import PDFPage
+from package.utils import reset_keys
 
 reset_keys()
 

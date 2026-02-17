@@ -10,7 +10,7 @@
 
 1. UV tool install method:
    ```bash
-   uv tool install git+https://github.com/legit-os/PDF_Engine.git pdfui
+   uv tool install git+https://github.com/legit-os/PDF_Engine.git
    ```
 
 2. Manually:

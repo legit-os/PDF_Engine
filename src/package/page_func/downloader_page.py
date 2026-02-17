@@ -1,6 +1,6 @@
-from utils import merge_pdf_pages
+from package.utils import merge_pdf_pages
 import streamlit as st
-from utils import reset_keys
+from package.utils import reset_keys
 
 reset_keys()
 

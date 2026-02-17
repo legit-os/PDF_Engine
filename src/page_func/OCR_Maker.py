@@ -17,7 +17,9 @@ deepseek_inst = ["Free OCR.","<|grounding|>Convert the document to markdown.","P
 glm_inst = ["Text Recognition:","Table Recognition:","Formula Recognition:"]
 
 st.title("OCR Review & Apply")
-st.info("If ocr text generated is very large and doesn't fit in one page, multiple pages are created pointing to the same image as the original page ")
+st.warning("If ocr text generated is very large and doesn't fit in one page, multiple pages are created pointing to the same image as the original page ")
+st.info(":green[If you want to make your pdf selectable, use the PaddleOCR instead of deepseek and glm since these will write markdown on a pdf page.]")
+
 
 if "pages" not in st.session_state or not st.session_state["pages"]:
     st.warning("No pages available.")

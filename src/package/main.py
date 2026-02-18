@@ -15,12 +15,15 @@ Markdown_to_PDF_maker_page = st.Page(Path("page_func/pdf_page_maker.py"),title="
 
 Paddle_OCR_page = st.Page(Path("page_func/Paddle_OCR.py"),title="Paddle_OCR")
 
+Splitter_page = st.Page(Path("page_func/splitter_page.py"))
+
 
 nav = st.navigation([Uploader_Page,
                      Reorder_Page,
                      OCR_page,
                      Markdown_to_PDF_maker_page,
                      Paddle_OCR_page,
+                     Splitter_page,
                      Compiler_page])
 
 nav.run()

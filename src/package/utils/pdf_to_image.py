@@ -8,26 +8,24 @@ import uuid
 from package.utils.pdfpage_Class import PDFPage
 
 
-def pdf_to_pages(pdf_bytes, dpi=150):
-
+def pdf_to_pages(pdf_bytes, dpi=150,logger=None):
+    if logger is not None:
+        logger.markdown(":green[Reading PDF...(Takes around 20 seconds for a pdf with 100 pages)]")
     reader = PdfReader(BytesIO(pdf_bytes))
-    images = convert_from_bytes(pdf_bytes, dpi=dpi)
+    images = convert_from_bytes(pdf_bytes, dpi=dpi,thread_count=1000)
+    n_pages = len(reader.page_labels)
 
     pages = []
 
     for i, (page, img) in enumerate(zip(reader.pages, images)):
+        if logger is not None:
+            logger.progress((i+1)/n_pages,f"Adding page {i+1}...")
         writer = PdfWriter()
         writer.add_page(page)
 
         buffer = BytesIO()
         writer.write(buffer)
         buffer.seek(0)
-
-        # pages.append({
-        #     "id": str(uuid.uuid4()),
-        #     "pdf_bytes": buffer.read(),
-        #     "image": img.convert("RGB")
-        # })
 
         pages.append(
             PDFPage(

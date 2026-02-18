@@ -26,6 +26,8 @@ if "pages" not in st.session_state:
 # ----------------------------------------------
 uploader_selected = st.radio("Select what type of files to upload",["Image","PDF","PPTX"],horizontal=True)
 
+logger = st.empty()
+
 # ----------------------------------------------------------------------------------------
 if uploader_selected == "Image":
     st.title("Upload Images")
@@ -34,27 +36,30 @@ if uploader_selected == "Image":
     uploaded_files = st.file_uploader(
         "Upload one (Right click on files and open or Drag them here )",
         type=["png", "jpg", "jpeg"],
-        accept_multiple_files=False,
+        accept_multiple_files=True,
         key=image_up_key
     )
-
+    
     if uploaded_files:
-        img = Image.open(uploaded_files).convert("RGB")
-        pdf_byte = image_to_single_page_pdf(img)
+        n = len(uploaded_files)
+        for i,file in enumerate(uploaded_files):
+            logger.progress(value=(i+1)/n,text=f"Processing image number {i+1}")
+            img = Image.open(file).convert("RGB")
+            pdf_byte = image_to_single_page_pdf(img)
 
-        st.session_state["pages"].append(
-            PDFPage(
-                page_id=str(uuid.uuid4()),
-                image=img,
-                pdf_bytes=pdf_byte,
-                markdown_text=None,
-                ocr_applied=False
+            st.session_state["pages"].append(
+                PDFPage(
+                    page_id=str(uuid.uuid4()),
+                    image=img,
+                    pdf_bytes=pdf_byte,
+                    markdown_text=None,
+                    ocr_applied=False
+                )
             )
-        )
 
         reset_keys()
         st.rerun()
-        
+        logger.empty()
             
 # --------------------------------------------------------------------------
 if uploader_selected == "PDF":
@@ -70,14 +75,15 @@ if uploader_selected == "PDF":
     )
 
     if uploaded_pdfs:
-
+        logger.markdown(":green[Processing pdf...]")
         pdf_bytes = uploaded_pdfs.read()
-        pages = pdf_to_pages(pdf_bytes)
+        pages = pdf_to_pages(pdf_bytes,logger=logger)
 
         st.session_state["pages"].extend(pages)
 
         reset_keys()
         st.rerun()
+        logger.empty()
             
             
 if uploader_selected == "PPTX":
@@ -93,6 +99,7 @@ if uploader_selected == "PPTX":
     )
 
     if uploaded_pptx:
+        logger.markdown(":green[Processing the PPT...]")
         pptx_bytes = uploaded_pptx.read()
         pages = get_pdf_from_pptx_managed(pptx_bytes)
         st.session_state["pages"].extend(pages)

@@ -3,9 +3,10 @@
 ### List of things that you can do with this project:
 1. Upload Images, PDFs, PPTs as many as you want and convert or merge them to a single pdf.
 2. Reorder, Rotate or Compress any page in the pdf.
-3. Use models like PaddleOCR, GLM-OCR and Deepseek-OCR with ollama to convert images or handwritten PDFs to Searchable PDFs.
-4. You can split the pdf pages that are in "two page view" to "one page view".
-5. Download the PDF file (and optionally compress it to whatever size it is possible to compress).
+3. Extract text from pdf pages if possible without ocr.
+4. Use models like PaddleOCR, GLM-OCR and Deepseek-OCR with ollama to convert images or handwritten PDFs to Searchable PDFs.
+5. You can split the pdf pages that are in "two page view" to "one page view".
+6. Download the PDF file (and optionally compress it to whatever size it is possible to compress).
 
 ## Requirements: 
 1. Ensure [UV](https://github.com/astral-sh/uv) is installed on your PC
@@ -27,6 +28,11 @@
 3. UV tool install method: (recommended)
    ```bash
    uv tool install git+https://github.com/legit-os/PDF_Engine.git -U
+   ```
+
+   Then Run:
+   ```bash
+   pdfui
    ```
 
 4. Manually: (it may have problems)

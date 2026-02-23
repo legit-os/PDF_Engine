@@ -7,6 +7,7 @@ from package.utils import (
     markdown_to_pdf_bytes_IMPROVED,
     PDFPage,
 )
+from package.utils.pdf_to_text import extract_text_from_pdf_bytes
 from package.utils import reset_keys
 
 reset_keys()
@@ -55,6 +56,13 @@ for i, page in enumerate(pages):
             page["pdf_bytes"] = image_to_single_page_pdf(page["image"])
             st.success("Image compressed")
             st.rerun()
+            
+        with st.popover(
+            "Extract Text",
+            width="stretch"
+        ):
+            text = extract_text_from_pdf_bytes(page["pdf_bytes"])
+            st.code(text,language="python")
 
     with col2:
         if st.button(":material/arrow_downward: Move", key=f"down_{page['page_id']}") and i < len(pages) - 1:

@@ -93,7 +93,7 @@ def get_pdf_from_pptx(pptx_file: bytes):
     return pages
 
 
-if __name__ == "__main__":                 # only for testing if spire is working perfectly
+if __name__ == "__main__":                 # only for testing if spire is working perfectly, since I don't use it
 
     # Create a Presentation object
     presentation = Presentation()

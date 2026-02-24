@@ -8,7 +8,7 @@ import uuid
 from package.utils.pdfpage_Class import PDFPage
 
 
-def pdf_to_pages(pdf_bytes, dpi=300,logger=None):
+def pdf_to_pages(pdf_bytes, dpi=200,logger=None):
     if logger is not None:
         logger.markdown(":green[Reading PDF...(Takes around 20 seconds for a pdf with 100 pages)]")
     reader = PdfReader(BytesIO(pdf_bytes))
@@ -43,7 +43,7 @@ from PIL import Image
 
 def pdf_page_to_image(
     pdf_bytes: bytes,
-    dpi: int = 300
+    dpi: int = 200
 ) -> list[Image.Image]:
     
     images = convert_from_bytes(pdf_bytes, dpi=dpi)

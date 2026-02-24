@@ -228,6 +228,7 @@ def apply_paddle_docker_ocr(pages: list):
                 "docker", "run", "--rm",
                 "-v", f"{input_dir}:/app/io/input_path",
                 "-v", f"{output_dir}:/app/io/output_path",
+                "-v",f"{str(Path(__file__).parent.parent / "models")}:/root/.paddlex",
                 "--name", "paddleocr-docker",
                 "legitos/paddleocr-docker:v1",
             ],
@@ -277,9 +278,4 @@ def apply_paddle_docker_ocr(pages: list):
             page["pdf_bytes"] = buffer.read()
             page["ocr_applied"] = True
             
-    subprocess.run(
-        [
-            "docker","rm","paddleocr-docker"
-        ]
-    )
     streamlit.text("**Done**")

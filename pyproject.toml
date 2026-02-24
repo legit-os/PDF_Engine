@@ -21,7 +21,7 @@ description = "Add your description here"
 name = "pdf-engine"
 readme = "README.md"
 requires-python = ">=3.14"
-version = "0.9.5"
+version = "0.9.6"
 
 [project.scripts]
 pdfui = "package.launcher:main"

@@ -205,7 +205,7 @@ def apply_paddle_docker_ocr(pages: list):
     if not eligible_pages:
         return
     
-    time_estimate = len(eligible_pages)*15 + len(eligible_pages)*5 + 300
+    time_estimate = len(eligible_pages)*20 + len(eligible_pages)*5 + 300
     
     streamlit.info(f"Processing {len(eligible_pages)} pages, Estimated Time=> {time_estimate//3600} hours , {time_estimate//60 - (time_estimate//3600)*60} minutes")
     

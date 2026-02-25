@@ -13,9 +13,11 @@ Compiler_page = st.Page(Path("page_func/downloader_page.py"),title="PDF Download
 
 Markdown_to_PDF_maker_page = st.Page(Path("page_func/pdf_page_maker.py"),title="PDF Writer")
 
-Paddle_OCR_page = st.Page(Path("page_func/Paddle_OCR.py"),title="Paddle_OCR")
+Paddle_OCR_page = st.Page(Path("page_func/Paddle_OCR.py"),title="Paddle OCR")
 
 Splitter_page = st.Page(Path("page_func/splitter_page.py"))
+
+MCP_server_page = st.Page(Path("page_func/MCP_Server.py"),title="MCP Manager")
 
 
 nav = st.navigation([Uploader_Page,
@@ -24,6 +26,7 @@ nav = st.navigation([Uploader_Page,
                      Markdown_to_PDF_maker_page,
                      Paddle_OCR_page,
                      Splitter_page,
+                     MCP_server_page,
                      Compiler_page])
 
 nav.run()

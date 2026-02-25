@@ -129,11 +129,13 @@ if st.button("Update MCP Index From Session Pages (Add session pages to the mcp 
             engine=engine,
             page_id=str(page["page_id"]),
             text=text,
-            keywords=extract_unique_words(text=text,remove_stopwords=True),
+            keywords=list(extract_unique_words(text=text,remove_stopwords=True)),
             metadata=metadata,
         )
 
         progress.progress((i + 1) / total, f"Processing page {i+1}")
 
+    progress.empty()
+    
     st.success("MCP Index updated successfully.")
     

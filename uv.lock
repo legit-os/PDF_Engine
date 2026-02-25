@@ -1722,7 +1722,7 @@ wheels = [
 
 [[package]]
 name = "pdf-engine"
-version = "0.9.6"
+version = "1.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "addict" },

@@ -67,7 +67,7 @@ def similarity_retriever_tool(
     global db_path
     chunk_ids = retrieve_chunk_ids(db_path,query,jaro_similarity,top_k)
     chunks = get_chunks_by_ids(db_path,ids=[i["id"] for i in chunk_ids])
-    return {i:{"text":k,"score":v["score"]} for i,k,v in enumerate(zip(chunks,chunk_ids)) } # enjoyed writing this
+    return {i:{"text":k,"score":v["score"]} for i,(k,v) in enumerate(zip(chunks,chunk_ids)) } # enjoyed writing this
 
 
 

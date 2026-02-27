@@ -52,9 +52,11 @@ if st.button("Initialize MCP Server"):
     
     schema = {
         "mcpServers": {
-            "local-pdf-rag": {
+            "PDF_Engine": {
                 "command": f"{uv_path}",
-                "args": ["--directory",f"{find_root("pdf-engine")}",
+                "args": ["--directory",
+                         f"{find_root("pdf-engine")}",
+                         "run"
                          f"{server_path}"]
             }
         }

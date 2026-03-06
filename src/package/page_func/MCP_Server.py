@@ -56,7 +56,7 @@ if st.button("Initialize MCP Server"):
                 "command": f"{uv_path}",
                 "args": ["--directory",
                          f"{find_root("pdf-engine")}",
-                         "run"
+                         "run",
                          f"{server_path}"]
             }
         }

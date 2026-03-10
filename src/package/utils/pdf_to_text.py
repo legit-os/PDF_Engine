@@ -22,9 +22,10 @@
 
 from io import BytesIO
 from pdfminer.high_level import extract_text
+from pdfminer.layout import LAParams
 
 def extract_text_from_pdf_bytes(pdf_bytes):
     try:
-        return extract_text(BytesIO(pdf_bytes)).strip()
+        return extract_text(BytesIO(pdf_bytes),laparams=LAParams(all_texts=True)).strip()
     except:
         return ""

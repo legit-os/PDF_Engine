@@ -20,6 +20,55 @@ def compress_image_for_pdf(
     return image
 
 import io
+
+import io
+from PIL import Image
+
+def get_image_filesize(pil_img, quality=99):
+    img_format = pil_img.format if pil_img.format else 'PNG'
+    
+    buffer = io.BytesIO()
+    
+    save_img = pil_img
+    if img_format.upper() == "JPEG" and pil_img.mode in ("RGBA", "P"):
+        save_img = pil_img.convert("RGB")
+    
+    if img_format.upper() == "JPEG":
+        save_img.save(buffer, format="JPEG", quality=quality, optimize=True)
+    else:
+        save_img.save(buffer, format=img_format, optimize=True)
+
+    size_bytes = len(buffer.getvalue())
+    size_kb = size_bytes / 1024
+    size_mb = size_kb / 1024
+    # buffer.seek(0)
+    
+    return round(size_kb, 2), round(size_mb, 4)
+
+
+
+def get_compressed_image(pil_img:Image.Image, quality=85): 
+    if pil_img.mode in ("RGBA", "P"):
+        background = Image.new("RGB", pil_img.size, (255, 255, 255))
+        mask = pil_img.split()[3] if pil_img.mode == "RGBA" else None
+        background.paste(pil_img, mask=mask)
+        pil_img = background
+    elif pil_img.mode != "RGB":
+        pil_img = pil_img.convert("RGB")
+
+    buffer = io.BytesIO()
+    pil_img.save(
+        buffer, 
+        format="JPEG", 
+        quality=quality, 
+        optimize=True,      
+        progressive=True    
+    )
+    buffer.seek(0)
+    return buffer.getvalue()
+
+
+import io
 from pypdf import PdfReader, PdfWriter
 
 def compress_pdf(pdf_bytes, target_size_kb=None, quality=80):

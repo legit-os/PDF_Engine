@@ -1,4 +1,5 @@
-import PIL.Image
+import io
+from PIL import Image
 import streamlit as st
 from package.utils import (
     image_to_single_page_pdf,
@@ -6,6 +7,8 @@ from package.utils import (
     pdf_page_to_image,
     markdown_to_pdf_bytes_IMPROVED,
     PDFPage,
+    get_compressed_image,
+    get_image_filesize
 )
 from package.utils.pdf_to_text import extract_text_from_pdf_bytes
 from package.utils import reset_keys
@@ -47,15 +50,29 @@ for i, page in enumerate(pages):
             page["pdf_bytes"] = image_to_single_page_pdf(page["image"])
             st.rerun()
 
-        if st.button(
+        with st.popover(
             "Compress",
             key=f"compress_{page['page_id']}",
             disabled=has_markdown,
         ):
-            page["image"] = compress_image_for_pdf(page["image"])
-            page["pdf_bytes"] = image_to_single_page_pdf(page["image"])
-            st.success("Image compressed")
-            st.rerun()
+            st.warning("Image file sizes displayed are generally very different from the real size on you file system")
+            size_kb, size_mb = get_image_filesize(page["image"])
+            st.info(f"Size of the image is {size_kb} KBs, or {size_mb} MBs")
+            quality = st.slider("Quality",min_value=50,max_value=99, value=85,key=f"comp_slider{page['page_id']}")
+            if st.button("Compress"):
+                st.session_state[f"{page['page_id']}_compressed"] = get_compressed_image(page["image"],
+                                                                                         quality=quality)
+            if st.session_state.get(f"{page['page_id']}_compressed",False):
+                comp_size_kb, comp_size_mb = get_image_filesize(Image.open(io.BytesIO(st.session_state[f"{page['page_id']}_compressed"])))
+                st.info(f"Compressed image size : {comp_size_kb} KBs , {comp_size_mb} MBs")
+
+            if st.session_state.get(f"{page['page_id']}_compressed",False):
+                st.download_button("Download compressed image",
+                                   data=st.session_state[f"{page['page_id']}_compressed"],
+                                   file_name="compressed_image.jpeg",
+                                   mime="image/jpeg"
+                                   )
+            
             
         with st.popover(
             "Extract Text",
@@ -63,6 +80,8 @@ for i, page in enumerate(pages):
         ):
             text = extract_text_from_pdf_bytes(page["pdf_bytes"])
             st.code(text,language="python")
+        
+            
 
     with col2:
         if st.button(":material/arrow_downward: Move", key=f"down_{page['page_id']}") and i < len(pages) - 1:

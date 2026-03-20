@@ -55,7 +55,7 @@ if st.button("Initialize MCP Server"):
             "PDF_Engine": {
                 "command": f"{uv_path}",
                 "args": ["--directory",
-                         f"{find_root("pdf-engine")}",
+                         f"{Path(__file__).parent.parent.parent.parent.parent}",
                          "run",
                          f"{server_path}"]
             }
@@ -141,3 +141,19 @@ if st.button("Update MCP Index From Session Pages (Add session pages to the mcp 
     
     st.success("MCP Index updated successfully.")
     
+    
+another_server = {
+  "mcpServers": {
+    "pdf-reader": {
+      "command": "npx",
+      "args": ["@sylphx/pdf-reader-mcp"]
+    }
+  }
+}
+
+st.info("Above given mcp server can help a chatbot to search for relevant pages with queries but it has only that much ability.")
+
+st.info("For working with pdf, it's highly recommended to use the following mcp server:")
+
+st.code(json.dumps(another_server,indent=2),language="json")
+st.warning("Change the last line of the above given config, it takes the path to your pdf file.")

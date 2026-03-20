@@ -1,4 +1,5 @@
 import io
+import uuid
 from PIL import Image
 import streamlit as st
 from package.utils import (
@@ -59,7 +60,7 @@ for i, page in enumerate(pages):
             size_kb, size_mb = get_image_filesize(page["image"])
             st.info(f"Size of the image is {size_kb} KBs, or {size_mb} MBs")
             quality = st.slider("Quality",min_value=50,max_value=99, value=85,key=f"comp_slider{page['page_id']}")
-            if st.button("Compress"):
+            if st.button("Compress",key=f"compressor_{page['page_id']}"):
                 st.session_state[f"{page['page_id']}_compressed"] = get_compressed_image(page["image"],
                                                                                          quality=quality)
             if st.session_state.get(f"{page['page_id']}_compressed",False):
@@ -70,7 +71,8 @@ for i, page in enumerate(pages):
                 st.download_button("Download compressed image",
                                    data=st.session_state[f"{page['page_id']}_compressed"],
                                    file_name="compressed_image.jpeg",
-                                   mime="image/jpeg"
+                                   mime="image/jpeg",
+                                   key=f"comp_down_{page['page_id']}"
                                    )
             
             

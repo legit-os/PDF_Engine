@@ -26,7 +26,8 @@ if not pages:
     st.error("No images uploaded.")
     st.stop()
 
-for i, page in enumerate(pages):
+@st.fragment()
+def editor_object(i:int,page):
     st.markdown("---")
     col1, col2, col3 = st.columns([1.2, 1.2, 6])
 
@@ -35,12 +36,12 @@ for i, page in enumerate(pages):
 
     if not has_image and not has_markdown:
         st.info(":red[Invalid page state: both image and markdown are missing.]")
-        continue
+        return None
 
     with col1:
         if st.button(":material/arrow_upward: Move", key=f"up_{page['page_id']}") and i > 0:
             pages[i - 1], pages[i] = pages[i], pages[i - 1]
-            st.rerun()
+            st.rerun(scope="fragment")
 
         if st.button(
             ":material/sync: Rotate",
@@ -49,7 +50,7 @@ for i, page in enumerate(pages):
         ):
             page["image"] = page["image"].rotate(-90, expand=True)
             page["pdf_bytes"] = image_to_single_page_pdf(page["image"])
-            st.rerun()
+            st.rerun(scope="fragment")
 
         with st.popover(
             "Compress",
@@ -88,11 +89,11 @@ for i, page in enumerate(pages):
     with col2:
         if st.button(":material/arrow_downward: Move", key=f"down_{page['page_id']}") and i < len(pages) - 1:
             pages[i + 1], pages[i] = pages[i], pages[i + 1]
-            st.rerun()
+            st.rerun(scope="fragment")
 
         if st.button(":material/delete: Delete", key=f"delete_{page['page_id']}"):
             pages.pop(i)
-            st.rerun()
+            st.rerun(scope="fragment")
 
         if st.button(
             "View OCR Page",
@@ -105,7 +106,7 @@ for i, page in enumerate(pages):
                 md_pdf_bytes = page["pdf_bytes"]
             md_image = pdf_page_to_image(md_pdf_bytes)
             st.session_state[f"preview_override_{page['page_id']}"] = md_image
-            st.rerun()
+            st.rerun(scope="fragment")
 
     with col3:
         override_key = f"preview_override_{page['page_id']}"
@@ -118,7 +119,7 @@ for i, page in enumerate(pages):
 
             if st.button("Back to Original View", key=f"back_{page['page_id']}"):
                 del st.session_state[override_key]
-                st.rerun()
+                st.rerun(scope="fragment")
 
         elif has_image:
             st.image(
@@ -132,3 +133,7 @@ for i, page in enumerate(pages):
                 """Image preview is not available for this page. 
                 You can click the View OCR Page button to see the page."""
             )
+
+
+for i, page in enumerate(pages):
+    editor_object(i,page)

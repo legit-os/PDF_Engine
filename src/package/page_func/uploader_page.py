@@ -19,6 +19,18 @@ if not has_image_up:
 if not has_ppt_up:
     ppt_up_key = get_uploader_key("ppt")
 
+# -----------------
+def optimize_image(image:Image.Image, max_width=1200):
+    width, height = image.size
+    
+    if width > max_width:
+        ratio = max_width / float(width)
+        new_height = int(float(height) * float(ratio))
+        
+        return image.resize((max_width, new_height), Image.Resampling.LANCZOS)
+    
+    return image
+
 # ---------------------------------------------------------------------
 
 if "pages" not in st.session_state:
@@ -44,7 +56,8 @@ if uploader_selected == "Image":
         n = len(uploaded_files)
         for i,file in enumerate(uploaded_files):
             logger.progress(value=(i+1)/n,text=f"Processing image number {i+1}")
-            img = Image.open(file).convert("RGB")
+            img = Image.open(file)
+            img = optimize_image(img)
             pdf_byte = image_to_single_page_pdf(img)
 
             st.session_state["pages"].append(
@@ -71,7 +84,8 @@ if uploader_selected == "PDF":
         "Upload PDF",
         type=["pdf"],
         accept_multiple_files=False,
-        key=pdf_up_key
+        key=pdf_up_key,
+        max_upload_size=1000
     )
 
     if uploaded_pdfs:
@@ -95,7 +109,8 @@ if uploader_selected == "PPTX":
         "Upload one or more PDF files",
         type=["pptx"],
         accept_multiple_files=False,
-        key=ppt_up_key
+        key=ppt_up_key,
+        max_upload_size=1000
     )
 
     if uploaded_pptx:

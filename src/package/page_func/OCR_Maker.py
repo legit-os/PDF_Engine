@@ -29,7 +29,9 @@ pages: list[PDFPage] = st.session_state["pages"]
 
 st.info("Compare original pages with OCR output. Apply OCR when satisfied.")
 
-for idx, page in enumerate(pages):
+
+@st.fragment()
+def ocr_fragment(idx,page):
     st.markdown("---")
     st.subheader(f"Page {idx + 1}")
 
@@ -38,7 +40,7 @@ for idx, page in enumerate(pages):
 
     if not has_image and not has_markdown:
         st.error("Invalid page state: both image and markdown are missing.")
-        continue
+        return None
 
     col_left, col_right = st.columns(2)
 
@@ -48,7 +50,7 @@ for idx, page in enumerate(pages):
             st.image(page["image"])
         else:
             st.info("This page has no image (probably because this is already written with markdown). OCR cannot be applied.")
-            continue
+            return None
 
     with col_right:
         st.markdown("### OCR Output")
@@ -105,7 +107,7 @@ for idx, page in enumerate(pages):
                         )
 
                 st.success("OCR completed")
-                st.rerun()
+                st.rerun(scope="fragment")
 
 
         with col_apply:
@@ -130,16 +132,20 @@ for idx, page in enumerate(pages):
                         pages.insert(idx + offset, new_page)
 
                     st.success("OCR applied to PDF page(s)")
-                    st.rerun()
+                    st.rerun(scope="fragment")
 
         with col_clear:
             if has_markdown:
                 if st.button("Clear OCR", key=f"clear_{page['page_id']}"):
                     page["markdown_text"] = None
                     st.info("OCR cleared")
-                    st.rerun()
+                    st.rerun(scope="fragment")
 
     if has_markdown:
         st.success(":green[OCR text present for this page]")
     else:
         st.warning(":red[OCR not applied]")
+
+
+for idx, page in enumerate(pages):
+    ocr_fragment(idx,page)

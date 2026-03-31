@@ -11,7 +11,7 @@ def main():
         db.unlink()
         
     subprocess.run(
-        [sys.executable, "-m", "streamlit", "run", str(main_file)],
+        [sys.executable, "-m", "streamlit", "run", str(main_file),"--server.maxUploadSize","1000"],
         check=True,
     )
 

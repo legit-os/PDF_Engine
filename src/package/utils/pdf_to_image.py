@@ -15,7 +15,7 @@ def pdf_to_pages(pdf_bytes, dpi=200,logger=None):
     images = convert_from_bytes(pdf_bytes, dpi=dpi,thread_count=1000)
     n_pages = len(reader.page_labels)
 
-    pages = []
+    pages = [] 
 
     for i, (page, img) in enumerate(zip(reader.pages, images)):
         if logger is not None:

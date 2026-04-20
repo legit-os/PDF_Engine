@@ -26,6 +26,27 @@ if not pages:
     st.error("No images uploaded.")
     st.stop()
 
+# --- Bulk Actions ---
+st.subheader("Bulk Actions")
+col_del_1, col_del_2 = st.columns([4, 1])
+with col_del_1:
+    to_delete = st.multiselect(
+        "Select pages to delete",
+        options=range(len(pages)),
+        format_func=lambda i: f"Page {i+1}",
+        key="bulk_delete_select"
+    )
+with col_del_2:
+    st.write("##") # Align button with multiselect
+    if st.button("Delete Selected", type="primary", use_container_width=True):
+        if to_delete:
+            st.session_state["pages"] = [p for i, p in enumerate(pages) if i not in to_delete]
+            st.rerun()
+        else:
+            st.warning("No pages selected.")
+
+st.markdown("---")
+
 @st.fragment()
 def editor_object(i:int,page):
     st.markdown("---")
@@ -41,7 +62,7 @@ def editor_object(i:int,page):
     with col1:
         if st.button(":material/arrow_upward: Move", key=f"up_{page['page_id']}") and i > 0:
             pages[i - 1], pages[i] = pages[i], pages[i - 1]
-            st.rerun(scope="fragment")
+            st.rerun()
 
         if st.button(
             ":material/sync: Rotate",
@@ -89,11 +110,11 @@ def editor_object(i:int,page):
     with col2:
         if st.button(":material/arrow_downward: Move", key=f"down_{page['page_id']}") and i < len(pages) - 1:
             pages[i + 1], pages[i] = pages[i], pages[i + 1]
-            st.rerun(scope="fragment")
+            st.rerun()
 
         if st.button(":material/delete: Delete", key=f"delete_{page['page_id']}"):
             pages.pop(i)
-            st.rerun(scope="fragment")
+            st.rerun()
 
         if st.button(
             "View OCR Page",
@@ -135,5 +156,21 @@ def editor_object(i:int,page):
             )
 
 
-for i, page in enumerate(pages):
-    editor_object(i,page)
+# --- Selection for Editor ---
+st.subheader("Editor Selection")
+col_sel_1, col_sel_2 = st.columns([4, 1])
+with col_sel_2:
+    if st.button("Select All Pages", use_container_width=True):
+        st.session_state["editor_select"] = list(range(len(pages)))
+        st.rerun()
+
+to_edit = st.multiselect(
+    "Select pages to display in Editor",
+    options=range(len(pages)),
+    format_func=lambda i: f"Page {i+1}",
+    default=[],
+    key="editor_select"
+)
+
+for i in to_edit:
+    editor_object(i, pages[i])

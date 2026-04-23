@@ -26,8 +26,7 @@ if not pages:
     st.error("No images uploaded.")
     st.stop()
 
-# --- Bulk Actions ---
-st.subheader("Bulk Actions")
+st.subheader("Delete Pages")
 col_del_1, col_del_2 = st.columns([4, 1])
 with col_del_1:
     to_delete = st.multiselect(
@@ -37,13 +36,82 @@ with col_del_1:
         key="bulk_delete_select"
     )
 with col_del_2:
-    st.write("##") # Align button with multiselect
+    st.write("##") 
     if st.button("Delete Selected", type="primary", use_container_width=True):
         if to_delete:
             st.session_state["pages"] = [p for i, p in enumerate(pages) if i not in to_delete]
             st.rerun()
         else:
             st.warning("No pages selected.")
+
+st.markdown("---")
+st.subheader("Move Pages")
+move_col1, move_col2, move_col3 = st.columns([2, 1, 1])
+
+with move_col1:
+    to_move = st.multiselect(
+        "Select pages to move",
+        options=range(len(pages)),
+        format_func=lambda i: f"Page {i+1}",
+        key="bulk_move_select"
+    )
+
+with move_col2:
+    move_pos = st.selectbox(
+        "Move to",
+        options=["Start", "End", "Before Page", "After Page"],
+        key="move_position_select"
+    )
+
+target_page = None
+if move_pos in ["Before Page", "After Page"]:
+    with move_col3:
+        target_page = st.number_input(
+            "Target Page Number",
+            min_value=1,
+            max_value=len(pages),
+            value=1,
+            key="move_target_input"
+        )
+
+if st.button("Move Selected", type="secondary", use_container_width=True):
+    if not to_move:
+        st.warning("Please select pages to move.")
+    else:
+        selected_indices = sorted(to_move)
+        moved_pages = [pages[i] for i in selected_indices]
+        remaining_pages = [p for i, p in enumerate(pages) if i not in selected_indices]
+        
+        target_idx = 0
+        if move_pos == "Start":
+            target_idx = 0
+        elif move_pos == "End":
+            target_idx = len(remaining_pages)
+        else:
+            ref_idx = target_page - 1
+            if ref_idx in selected_indices:
+                st.error("Target page cannot be one of the pages you are moving.")
+            elif ref_idx < 0 or ref_idx >= len(pages):
+                st.error("Invalid target page number.")
+            else:
+                ref_page_obj = pages[ref_idx]
+                try:
+                    new_ref_idx = remaining_pages.index(ref_page_obj)
+                    if move_pos == "Before Page":
+                        target_idx = new_ref_idx
+                    else: # After Page
+                        target_idx = new_ref_idx + 1
+                except ValueError:
+                    st.error("Target page mapping error.")
+                    st.stop()
+        
+        if not st.session_state.get("error_flag", False):
+            st.session_state["pages"] = (
+                remaining_pages[:target_idx] + 
+                moved_pages + 
+                remaining_pages[target_idx:]
+            )
+            st.rerun()
 
 st.markdown("---")
 
@@ -156,13 +224,6 @@ def editor_object(i:int,page):
             )
 
 
-# --- Selection for Editor ---
-st.subheader("Editor Selection")
-col_sel_1, col_sel_2 = st.columns([4, 1])
-with col_sel_2:
-    if st.button("Select All Pages", use_container_width=True):
-        st.session_state["editor_select"] = list(range(len(pages)))
-        st.rerun()
 
 to_edit = st.multiselect(
     "Select pages to display in Editor",

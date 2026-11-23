@@ -1,4 +1,5 @@
 import io
+import re
 import uuid
 from PIL import Image
 import streamlit as st
@@ -26,9 +27,39 @@ if not pages:
     st.error("No images uploaded.")
     st.stop()
 
+
+def parse_page_ranges(value: str, page_count: int) -> tuple[set[int], str | None]:
+    """Parse 1-based page numbers and inclusive ranges such as '3-25,27,29'."""
+    selected: set[int] = set()
+    if not value.strip():
+        return selected, None
+
+    for part in value.split(","):
+        token = part.strip()
+        match = re.fullmatch(r"(\d+)(?:\s*-\s*(\d+))?", token)
+        if not match:
+            return set(), f"'{token}' is invalid. Use page numbers and ranges like 3-25,27,29."
+
+        start = int(match.group(1))
+        end = int(match.group(2) or start)
+        if start < 1 or end < 1 or start > page_count or end > page_count:
+            return set(), f"Pages must be between 1 and {page_count}."
+        if start > end:
+            return set(), f"Range '{token}' must start with the smaller page number."
+
+        selected.update(range(start - 1, end))
+
+    return selected, None
+
 st.subheader("Delete Pages")
 col_del_1, col_del_2 = st.columns([4, 1])
 with col_del_1:
+    delete_ranges = st.text_input(
+        "Page numbers or ranges to delete",
+        placeholder="3-25,27,29,40",
+        help="Enter 1-based page numbers and inclusive ranges, separated by commas.",
+        key="bulk_delete_ranges",
+    )
     to_delete = st.multiselect(
         "Select pages to delete",
         options=range(len(pages)),
@@ -38,8 +69,12 @@ with col_del_1:
 with col_del_2:
     st.write("##") 
     if st.button("Delete Selected", type="primary", use_container_width=True):
-        if to_delete:
-            st.session_state["pages"] = [p for i, p in enumerate(pages) if i not in to_delete]
+        range_indices, range_error = parse_page_ranges(delete_ranges, len(pages))
+        if range_error:
+            st.error(range_error)
+        elif to_delete or range_indices:
+            selected_indices = set(to_delete) | range_indices
+            st.session_state["pages"] = [p for i, p in enumerate(pages) if i not in selected_indices]
             st.rerun()
         else:
             st.warning("No pages selected.")
@@ -49,6 +84,12 @@ st.subheader("Move Pages")
 move_col1, move_col2, move_col3 = st.columns([2, 1, 1])
 
 with move_col1:
+    move_ranges = st.text_input(
+        "Page numbers or ranges to move",
+        placeholder="3-25,27,29,40",
+        help="Enter 1-based page numbers and inclusive ranges, separated by commas.",
+        key="bulk_move_ranges",
+    )
     to_move = st.multiselect(
         "Select pages to move",
         options=range(len(pages)),
@@ -75,14 +116,18 @@ if move_pos in ["Before Page", "After Page"]:
         )
 
 if st.button("Move Selected", type="secondary", use_container_width=True):
-    if not to_move:
+    range_indices, range_error = parse_page_ranges(move_ranges, len(pages))
+    selected_indices = sorted(set(to_move) | range_indices)
+    if range_error:
+        st.error(range_error)
+    elif not selected_indices:
         st.warning("Please select pages to move.")
     else:
-        selected_indices = sorted(to_move)
         moved_pages = [pages[i] for i in selected_indices]
         remaining_pages = [p for i, p in enumerate(pages) if i not in selected_indices]
         
         target_idx = 0
+        move_is_valid = True
         if move_pos == "Start":
             target_idx = 0
         elif move_pos == "End":
@@ -91,8 +136,10 @@ if st.button("Move Selected", type="secondary", use_container_width=True):
             ref_idx = target_page - 1
             if ref_idx in selected_indices:
                 st.error("Target page cannot be one of the pages you are moving.")
+                move_is_valid = False
             elif ref_idx < 0 or ref_idx >= len(pages):
                 st.error("Invalid target page number.")
+                move_is_valid = False
             else:
                 ref_page_obj = pages[ref_idx]
                 try:
@@ -103,9 +150,9 @@ if st.button("Move Selected", type="secondary", use_container_width=True):
                         target_idx = new_ref_idx + 1
                 except ValueError:
                     st.error("Target page mapping error.")
-                    st.stop()
+                    move_is_valid = False
         
-        if not st.session_state.get("error_flag", False):
+        if move_is_valid:
             st.session_state["pages"] = (
                 remaining_pages[:target_idx] + 
                 moved_pages + 
